@@ -66,6 +66,20 @@
 					<div id="js_preview"></div>
 				</div>
 			</div>
+            <div class="row">
+                <div class="col-4">
+                    <h6>Traverse HTML AST</h6>
+                    <div id="html_traverse"></div>
+                </div>
+                <div class="col-4">
+                    <h6>Traverse CSS AST</h6>
+                    <div id="css_traverse"></div>
+                </div>
+                <div class="col-4">
+                    <h6>Traverse JS AST</h6>
+                    <div id="js_traverse"></div>
+                </div>
+            </div>
 		</div>
 
 		<!-- Optional JavaScript -->
@@ -137,6 +151,12 @@
 			var html_preview = document.getElementById("html_preview");
 			var css_preview = document.getElementById("css_preview");
 			var js_preview = document.getElementById("js_preview");
+            var html_traverse = document.getElementById("html_traverse");
+            var css_traverse = document.getElementById("css_traverse");
+            var js_traverse = document.getElementById("js_traverse");
+            var solution_html = [];
+            var solution_css = [];
+            var solution_js = [];
 			const flask_html_editor = new CodeFlask("#html_editor", { language: "html", lineNumbers: true });
 			flask_html_editor.updateCode(html);
 			const flask_css_editor = new CodeFlask("#css_editor", { language: "css", lineNumbers: true });
@@ -157,8 +177,12 @@
 				ast_html = himalaya.parse(html);
 				// Generate
 				code_html = himalaya.stringify(ast_html);
-				console.log(ast_html);
+                // Traverse
+                solution_html = [];
+                traverse_html(ast_html);
+				console.log(solution_html);
 				html_preview.textContent = JSON.stringify(ast_html);
+                html_traverse.textContent = JSON.stringify(solution_html);
 				update_livepreview(html, css, js);
 			});
 			flask_css_editor.onUpdate((csscode) => {
@@ -167,8 +191,12 @@
 				ast_css = cssparser.parseCSS(css);
 				// Generate
 				code_css = cssparser.getCSSForEditor(ast_css);
-				console.log(ast_css);
+                // Traverse
+                solution_css = [];
+                traverse_css(ast_css);
+				console.log(solution_css);
 				css_preview.textContent = JSON.stringify(ast_css);
+                css_traverse.textContent = JSON.stringify(solution_css);
 				update_livepreview(html, css, js);
 			});
 			flask_js_editor.onUpdate((jscode) => {
@@ -177,10 +205,55 @@
 				ast_js = esprima.parseScript(js);
 				// Generate
 				code_js = escodegen.generate(ast_js);
-				console.log(ast_js);
+                // Traverse
+                solution_js = [];
+                traverse_js(ast_js);
+				console.log(solution_js);
 				js_preview.textContent = JSON.stringify(ast_js);
+                js_traverse.textContent = JSON.stringify(solution_js);
 				update_livepreview(html, css, js);
 			});
+            function traverse_html(ast){
+                const entries = Object.entries(ast);
+                entries.forEach(function(element){ 
+                if(Array.isArray(element[1])){
+                    traverse_html(element[1]);
+                }else if(element[1].children > 1 && element[1].type != "text"){
+                    traverse_html(element[1].children);
+                }else if(isNode(element[1]) && element[1].type != "text"){
+                    solution_html.push(element[1]);
+                    console.log(element[1]);
+                }
+                });
+            }
+            function traverse_css(ast){
+                const entries = Object.entries(ast);
+                entries.forEach(function(element){
+                   if(isNode(element[1])){
+                       solution_css.push(element[1]);
+                       console.log(element[1]);
+                   } 
+                });
+            }
+            function traverse_js(ast){
+                const entries = Object.entries(ast);
+                entries.forEach(function(element){ 
+                if(Array.isArray(element[1])){
+                    traverse_js(element[1]);
+                }else if(Object.keys(element[1]).includes("body")){
+                    //console.log(element[1]);
+                    solution_js.push(element[1]);
+                    traverse_js(element[1].body);
+                }
+                else if(isNode(element[1])){
+                    console.log(element[1]);
+                    solution_js.push(element[1]);
+                }
+                });
+            }
+            function isNode(node){
+                return typeof node === 'object';
+            }
 		</script>
 	</body>
 </html>
