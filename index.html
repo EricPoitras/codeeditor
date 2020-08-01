@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+		<!-- Bootstrap CSS -->
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+			integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+			crossorigin="anonymous"
+		/>
+		<style>
+			.row {
+				height: 49vh;
+			}
+			.codeflask {
+				height: 90% !important;
+				width: 95% !important;
+				border: none;
+			}
+			iframe {
+				background-color: white;
+				width: 100%;
+				height: 90%;
+				border: none;
+			}
+		</style>
+		<title>Code Editor</title>
+	</head>
+	<body class="bg-light">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-6">
+					<h6>HTML</h6>
+					<div id="html_editor"></div>
+				</div>
+				<div class="col-6">
+					<h6>CSS</h6>
+					<div id="css_editor"></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-6">
+					<h6>JS</h6>
+					<div id="js_editor"></div>
+				</div>
+				<div class="col-6">
+					<h6>PREVIEW</h6>
+					<iframe></iframe>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-4">
+					<h6>HTML JSON Output</h6>
+					<div id="html_preview"></div>
+				</div>
+				<div class="col-4">
+					<h6>CSS JSON Output</h6>
+					<div id="css_preview"></div>
+				</div>
+				<div class="col-4">
+					<h6>JS JSON Output</h6>
+					<div id="js_preview"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<script
+			src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+			integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+			integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+			integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+			crossorigin="anonymous"
+		></script>
+		<!--Code Editor https://kazzkiq.github.io/CodeFlask/ -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/codeflask/1.4.1/codeflask.min.js"></script>
+		<!--JS Parser https://esprima.org/ -->
+		<script src="https://unpkg.com/esprima@4.0.1/dist/esprima.js"></script>
+		<!--JS Generator https://github.com/estools/escodegen -->
+		<script src="js/escodegen.js"></script>
+		<!--CSS Parser and Generator https://github.com/jotform/css.js/blob/master/css.min.js -->
+		<script src="js/css.min.js"></script>
+		<!--HTML Parser and Generator https://github.com/andrejewski/himalaya-->
+		<script src="js/himalaya.js"></script>
+		<script>
+			// https://astexplorer.net/
+			var data = {
+				html: [{ type: "element", tagName: "p", attributes: [], children: [{ type: "text", content: "Hello World" }] }],
+				css: [{ selector: "p", rules: [{ directive: "color", value: "red" }] }],
+				js: {
+					type: "Program",
+					body: [
+						{
+							type: "VariableDeclaration",
+							declarations: [
+								{
+									type: "VariableDeclarator",
+									id: { type: "Identifier", name: "hello" },
+									init: { type: "Literal", value: "Hello World!", raw: "'Hello World!'" },
+								},
+							],
+							kind: "var",
+						},
+						{
+							type: "ExpressionStatement",
+							expression: {
+								type: "AssignmentExpression",
+								operator: "=",
+								left: { type: "Identifier", name: "hello" },
+								right: { type: "Literal", value: "hello", raw: "'hello'" },
+							},
+						},
+					],
+					sourceType: "script",
+				},
+			};
+			var html = himalaya.stringify(data.html); //"<p>Hello World</p>";
+			var cssparser = new cssjs();
+			var css = cssparser.getCSSForEditor(data.css); //"p{color: red;}";
+			var js = escodegen.generate(data.js); //"var hello = 'Hello World!';hello = 'hello';";
+			var ast_js, code_js;
+			var ast_css, code_css;
+			var ast_html, code_html;
+			var html_preview = document.getElementById("html_preview");
+			var css_preview = document.getElementById("css_preview");
+			var js_preview = document.getElementById("js_preview");
+			const flask_html_editor = new CodeFlask("#html_editor", { language: "html", lineNumbers: true });
+			flask_html_editor.updateCode(html);
+			const flask_css_editor = new CodeFlask("#css_editor", { language: "css", lineNumbers: true });
+			flask_css_editor.updateCode(css);
+			const flask_js_editor = new CodeFlask("#js_editor", { language: "js", lineNumbers: true });
+			flask_js_editor.updateCode(js);
+			const iframe = document.querySelector("iframe"),
+				iframeWin = iframe.contentWindow || iframe,
+				iframeDoc = iframe.contentDocument || iframeWin.document;
+			function update_livepreview(html, css, js) {
+				iframeDoc.open();
+				iframeDoc.writeln("<html><head><style>" + css + "</style></head><body>" + html + "<script>" + js + "</" + "script></body></html>");
+				iframeDoc.close();
+			}
+			flask_html_editor.onUpdate((htmlcode) => {
+				html = htmlcode;
+				// Parse
+				ast_html = himalaya.parse(html);
+				// Generate
+				code_html = himalaya.stringify(ast_html);
+				console.log(ast_html);
+				html_preview.textContent = JSON.stringify(ast_html);
+				update_livepreview(html, css, js);
+			});
+			flask_css_editor.onUpdate((csscode) => {
+				css = csscode;
+				// Parse
+				ast_css = cssparser.parseCSS(css);
+				// Generate
+				code_css = cssparser.getCSSForEditor(ast_css);
+				console.log(ast_css);
+				css_preview.textContent = JSON.stringify(ast_css);
+				update_livepreview(html, css, js);
+			});
+			flask_js_editor.onUpdate((jscode) => {
+				js = jscode;
+				// Parse
+				ast_js = esprima.parseScript(js);
+				// Generate
+				code_js = escodegen.generate(ast_js);
+				console.log(ast_js);
+				js_preview.textContent = JSON.stringify(ast_js);
+				update_livepreview(html, css, js);
+			});
+		</script>
+	</body>
+</html>
