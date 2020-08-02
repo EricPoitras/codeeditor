@@ -109,6 +109,8 @@
 		<script src="js/css.min.js"></script>
 		<!--HTML Parser and Generator https://github.com/andrejewski/himalaya-->
 		<script src="js/himalaya.js"></script>
+		<!-- Lodash utilities -->
+		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.19/lodash.min.js"></script>
 		<script>
 			// https://astexplorer.net/
 			var data = {
@@ -206,6 +208,7 @@
 				traverse_html(data.solution.html, "solution");
 				console.log(serialize.problem.html);
 				console.log(serialize.solution.html);
+				console.log(match(serialize.problem.html, serialize.solution.html));
 				html_preview.textContent = JSON.stringify(data.problem.html);
 				html_traverse.textContent = JSON.stringify(serialize.problem.html);
 				update_livepreview(code_html, code_css, code_js);
@@ -222,6 +225,7 @@
 				traverse_css(data.problem.css, data.solution.css);
 				console.log(serialize.problem.css);
 				console.log(serialize.solution.css);
+				console.log(match(serialize.problem.css, serialize.solution.css));
 				css_preview.textContent = JSON.stringify(data.problem.css);
 				css_traverse.textContent = JSON.stringify(serialize.problem.css);
 				update_livepreview(code_html, code_css, code_js);
@@ -239,6 +243,7 @@
 				traverse_js(data.solution.js, "solution");
 				console.log(serialize.problem.js);
 				console.log(serialize.solution.js);
+				console.log(match(serialize.problem.js, serialize.solution.js));
 				js_preview.textContent = JSON.stringify(data.problem.js);
 				js_traverse.textContent = JSON.stringify(serialize.problem.js);
 				update_livepreview(code_html, code_css, code_js);
@@ -319,6 +324,20 @@
 			}
 			function isNode(node) {
 				return typeof node === "object";
+			}
+			function match(problem, solution) {
+				let matrix = Array.from(Array(problem.length), () => new Array(solution.length));
+				for (let i = 0; i < problem.length; i++) {
+					for (let j = 0; j < solution.length; j++) {
+						// TO DO: Build an object to qualify for each language how the values are different + this does not work for JS objects - some differences remain
+						if (_.isEqual(problem[i], solution[j])) {
+							matrix[i][j] = 1;
+						} else {
+							matrix[i][j] = 0;
+						}
+					}
+				}
+				return matrix;
 			}
 		</script>
 	</body>
