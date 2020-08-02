@@ -66,20 +66,20 @@
 					<div id="js_preview"></div>
 				</div>
 			</div>
-            <div class="row">
-                <div class="col-4">
-                    <h6>Traverse HTML AST</h6>
-                    <div id="html_traverse"></div>
-                </div>
-                <div class="col-4">
-                    <h6>Traverse CSS AST</h6>
-                    <div id="css_traverse"></div>
-                </div>
-                <div class="col-4">
-                    <h6>Traverse JS AST</h6>
-                    <div id="js_traverse"></div>
-                </div>
-            </div>
+			<div class="row">
+				<div class="col-4">
+					<h6>Traverse HTML AST</h6>
+					<div id="html_traverse"></div>
+				</div>
+				<div class="col-4">
+					<h6>Traverse CSS AST</h6>
+					<div id="css_traverse"></div>
+				</div>
+				<div class="col-4">
+					<h6>Traverse JS AST</h6>
+					<div id="js_traverse"></div>
+				</div>
+			</div>
 		</div>
 
 		<!-- Optional JavaScript -->
@@ -112,51 +112,55 @@
 		<script>
 			// https://astexplorer.net/
 			var data = {
-                solution:{
-				    html: [{ type: "element", tagName: "p", attributes: [], children: [{ type: "text", content: "Hello World" }] }],
-				    css: [{ selector: "p", rules: [{ directive: "color", value: "red" }] }],
-                    js: {
-                        type: "Program",
-                        body: [
-                            {
-                                type: "VariableDeclaration",
-                                declarations: [
-                                    {
-                                        type: "VariableDeclarator",
-                                        id: { type: "Identifier", name: "hello" },
-                                        init: { type: "Literal", value: "Hello World!", raw: "'Hello World!'" },
-                                    },
-                                ],
-                                kind: "var",
-                            },
-                            {
-                                type: "ExpressionStatement",
-                                expression: {
-                                    type: "AssignmentExpression",
-                                    operator: "=",
-                                    left: { type: "Identifier", name: "hello" },
-                                    right: { type: "Literal", value: "hello", raw: "'hello'" },
-                                },
-                            },
-                        ],
-                        sourceType: "script",
-                    },
-			     },
-                problem:{
-                    html:"",
-                    css:"",
-                    js:""
-                }
-            };
-            
-            var serialize = {
-                solution:{
-                    html: [], css: [], js: []
-                },
-                problem:{
-                    html: [], css: [], js: []
-                }
-            };
+				solution: {
+					html: [{ type: "element", tagName: "p", attributes: [], children: [{ type: "text", content: "Hello World" }] }],
+					css: [{ selector: "p", rules: [{ directive: "color", value: "red" }] }],
+					js: {
+						type: "Program",
+						body: [
+							{
+								type: "VariableDeclaration",
+								declarations: [
+									{
+										type: "VariableDeclarator",
+										id: { type: "Identifier", name: "hello" },
+										init: { type: "Literal", value: "Hello World!", raw: "'Hello World!'" },
+									},
+								],
+								kind: "var",
+							},
+							{
+								type: "ExpressionStatement",
+								expression: {
+									type: "AssignmentExpression",
+									operator: "=",
+									left: { type: "Identifier", name: "hello" },
+									right: { type: "Literal", value: "hello", raw: "'hello'" },
+								},
+							},
+						],
+						sourceType: "script",
+					},
+				},
+				problem: {
+					html: "",
+					css: "",
+					js: "",
+				},
+			};
+
+			var serialize = {
+				solution: {
+					html: [],
+					css: [],
+					js: [],
+				},
+				problem: {
+					html: [],
+					css: [],
+					js: [],
+				},
+			};
 
 			//var html = himalaya.stringify(data.html); //"<p>Hello World</p>";
 			var cssparser = new cssjs();
@@ -168,13 +172,13 @@
 			var html_preview = document.getElementById("html_preview");
 			var css_preview = document.getElementById("css_preview");
 			var js_preview = document.getElementById("js_preview");
-            var html_traverse = document.getElementById("html_traverse");
-            var css_traverse = document.getElementById("css_traverse");
-            var js_traverse = document.getElementById("js_traverse");
-            var solution_html = [];
-            var solution_css = [];
-            var solution_js = [];
-            
+			var html_traverse = document.getElementById("html_traverse");
+			var css_traverse = document.getElementById("css_traverse");
+			var js_traverse = document.getElementById("js_traverse");
+			var solution_html = [];
+			var solution_css = [];
+			var solution_js = [];
+
 			const flask_html_editor = new CodeFlask("#html_editor", { language: "html", lineNumbers: true });
 			flask_html_editor.updateCode(data.problem.html);
 			const flask_css_editor = new CodeFlask("#css_editor", { language: "css", lineNumbers: true });
@@ -195,31 +199,31 @@
 				data.problem.html = himalaya.parse(htmlcode);
 				// Generate
 				code_html = himalaya.stringify(data.problem.html);
-                // Traverse
-                serialize.problem.html = [];
-                serialize.solution.html = [];
-                traverse_html(data.problem.html, "problem");
-                traverse_html(data.solution.html, "solution");
+				// Traverse
+				serialize.problem.html = [];
+				serialize.solution.html = [];
+				traverse_html(data.problem.html, "problem");
+				traverse_html(data.solution.html, "solution");
 				console.log(serialize.problem.html);
-                console.log(serialize.solution.html);
+				console.log(serialize.solution.html);
 				html_preview.textContent = JSON.stringify(data.problem.html);
-                html_traverse.textContent = JSON.stringify(serialize.problem.html);
+				html_traverse.textContent = JSON.stringify(serialize.problem.html);
 				update_livepreview(code_html, code_css, code_js);
 			});
 			flask_css_editor.onUpdate((csscode) => {
-                //data.problem.css = csscode;
+				//data.problem.css = csscode;
 				// Parse
 				data.problem.css = cssparser.parseCSS(csscode);
 				// Generate
 				code_css = cssparser.getCSSForEditor(data.problem.css);
-                // Traverse
-                serialize.problem.css = [];
-                serialize.solution.css = [];
-                traverse_css(data.problem.css, data.solution.css);
+				// Traverse
+				serialize.problem.css = [];
+				serialize.solution.css = [];
+				traverse_css(data.problem.css, data.solution.css);
 				console.log(serialize.problem.css);
-                console.log(serialize.solution.css);
+				console.log(serialize.solution.css);
 				css_preview.textContent = JSON.stringify(data.problem.css);
-                css_traverse.textContent = JSON.stringify(serialize.problem.css);
+				css_traverse.textContent = JSON.stringify(serialize.problem.css);
 				update_livepreview(code_html, code_css, code_js);
 			});
 			flask_js_editor.onUpdate((jscode) => {
@@ -227,77 +231,95 @@
 				// Parse
 				data.problem.js = esprima.parseScript(jscode);
 				// Generate
-				code_js = escodegen.generate(ast_js);
-                // Traverse
-                solution_js = [];
-                traverse_js(data.problem.js);
-				console.log(solution_js);
+				code_js = escodegen.generate(data.problem.js);
+				// Traverse
+				serialize.problem.js = [];
+				serialize.solution.js = [];
+				traverse_js(data.problem.js, "problem");
+				traverse_js(data.solution.js, "solution");
+				console.log(serialize.problem.js);
+				console.log(serialize.solution.js);
 				js_preview.textContent = JSON.stringify(data.problem.js);
-                js_traverse.textContent = JSON.stringify(solution_js);
+				js_traverse.textContent = JSON.stringify(serialize.problem.js);
 				update_livepreview(code_html, code_css, code_js);
 			});
-            function traverse_html(ast, type){
-                if(type == "problem"){
-                   let entries_problem = Object.entries(ast);
-                    entries_problem.forEach(function(element){ 
-                        if(element[1].children != null && element[1].type != "text"){
-                            serialize.problem.html.push(element[1]);
-                            traverse_html(element[1].children, "problem");
-                        }else if(isNode(element[1]) && element[1].type != "text"){
-                            serialize.problem.html.push(element[1]);
-                        }
-                    }); 
-                }else{
-                     let entries_solution = Object.entries(ast);
-                    entries_solution.forEach(function(element){ 
-                        if(element[1].children != null && element[1].type != "text"){
-                            serialize.solution.html.push(element[1]);
-                            traverse_html(element[1].children, "solution");
-                        }else if(isNode(element[1]) && element[1].type != "text"){
-                            serialize.solution.html.push(element[1]);
-                        }
-                    });
-                }
-            }
-            function traverse_css(problem, solution){
-                let entries_problem = Object.entries(problem);
-                entries_problem.forEach(function(element){
-                   if(isNode(element[1])){
-                       var selector = element[1].selector;
-                       element[1].rules.forEach(function(rule){
-                           serialize.problem.css.push({selector: selector, directive: rule.directive, value: rule.value});
-                       });
-                   } 
-                });
-                let entries_solution = Object.entries(solution);
-                entries_solution.forEach(function(element){
-                   if(isNode(element[1])){
-                       var selector = element[1].selector;
-                       element[1].rules.forEach(function(rule){
-                           serialize.solution.css.push({selector: selector, directive: rule.directive, value: rule.value});
-                       });
-                   } 
-                });
-            }
-            function traverse_js(ast){
-                let entries = Object.entries(ast);
-                entries.forEach(function(element){ 
-                if(Array.isArray(element[1])){
-                    traverse_js(element[1]);
-                }else if(Object.keys(element[1]).includes("body")){
-                    //console.log(element[1]);
-                    solution_js.push(element[1]);
-                    traverse_js(element[1].body);
-                }
-                else if(isNode(element[1])){
-                    console.log(element[1]);
-                    solution_js.push(element[1]);
-                }
-                });
-            }
-            function isNode(node){
-                return typeof node === 'object';
-            }
+			function traverse_html(ast, type) {
+				if (type == "problem") {
+					let entries_problem = Object.entries(ast);
+					entries_problem.forEach(function (element) {
+						if (element[1].children != null && element[1].type != "text") {
+							serialize.problem.html.push(element[1]);
+							traverse_html(element[1].children, "problem");
+						} else if (isNode(element[1]) && element[1].type != "text") {
+							serialize.problem.html.push(element[1]);
+						}
+					});
+				} else {
+					let entries_solution = Object.entries(ast);
+					entries_solution.forEach(function (element) {
+						if (element[1].children != null && element[1].type != "text") {
+							serialize.solution.html.push(element[1]);
+							traverse_html(element[1].children, "solution");
+						} else if (isNode(element[1]) && element[1].type != "text") {
+							serialize.solution.html.push(element[1]);
+						}
+					});
+				}
+			}
+			function traverse_css(problem, solution) {
+				let entries_problem = Object.entries(problem);
+				entries_problem.forEach(function (element) {
+					if (isNode(element[1])) {
+						var selector = element[1].selector;
+						element[1].rules.forEach(function (rule) {
+							serialize.problem.css.push({ selector: selector, directive: rule.directive, value: rule.value });
+						});
+					}
+				});
+				let entries_solution = Object.entries(solution);
+				entries_solution.forEach(function (element) {
+					if (isNode(element[1])) {
+						var selector = element[1].selector;
+						element[1].rules.forEach(function (rule) {
+							serialize.solution.css.push({ selector: selector, directive: rule.directive, value: rule.value });
+						});
+					}
+				});
+			}
+			function traverse_js(ast, type) {
+				if (type == "problem") {
+					let entries_problem = Object.entries(ast);
+					entries_problem.forEach(function (element) {
+						if (Array.isArray(element[1])) {
+							traverse_js(element[1], "problem");
+						} else if (Object.keys(element[1]).includes("body")) {
+							//console.log(element[1]);
+							serialize.problem.js.push(element[1]);
+							traverse_js(element[1].body, "problem");
+						} else if (isNode(element[1])) {
+							//console.log(element[1]);
+							serialize.problem.js.push(element[1]);
+						}
+					});
+				} else {
+					let entries_solution = Object.entries(ast);
+					entries_solution.forEach(function (element) {
+						if (Array.isArray(element[1])) {
+							traverse_js(element[1], "solution");
+						} else if (Object.keys(element[1]).includes("body")) {
+							//console.log(element[1]);
+							serialize.solution.js.push(element[1]);
+							traverse_js(element[1].body, "solution");
+						} else if (isNode(element[1])) {
+							//console.log(element[1]);
+							serialize.solution.js.push(element[1]);
+						}
+					});
+				}
+			}
+			function isNode(node) {
+				return typeof node === "object";
+			}
 		</script>
 	</body>
 </html>
