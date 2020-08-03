@@ -208,7 +208,7 @@
 				traverse_html(data.solution.html, "solution");
 				console.log(serialize.problem.html);
 				console.log(serialize.solution.html);
-				console.log(match(serialize.problem.html, serialize.solution.html));
+				console.log(match(serialize.problem.html, serialize.solution.html, "html"));
 				html_preview.textContent = JSON.stringify(data.problem.html);
 				html_traverse.textContent = JSON.stringify(serialize.problem.html);
 				update_livepreview(code_html, code_css, code_js);
@@ -225,7 +225,7 @@
 				traverse_css(data.problem.css, data.solution.css);
 				console.log(serialize.problem.css);
 				console.log(serialize.solution.css);
-				console.log(match(serialize.problem.css, serialize.solution.css));
+				console.log(match(serialize.problem.css, serialize.solution.css, "css"));
 				css_preview.textContent = JSON.stringify(data.problem.css);
 				css_traverse.textContent = JSON.stringify(serialize.problem.css);
 				update_livepreview(code_html, code_css, code_js);
@@ -243,7 +243,7 @@
 				traverse_js(data.solution.js, "solution");
 				console.log(serialize.problem.js);
 				console.log(serialize.solution.js);
-				console.log(match(serialize.problem.js, serialize.solution.js));
+				console.log(match(serialize.problem.js, serialize.solution.js, "js"));
 				js_preview.textContent = JSON.stringify(data.problem.js);
 				js_traverse.textContent = JSON.stringify(serialize.problem.js);
 				update_livepreview(code_html, code_css, code_js);
@@ -325,15 +325,75 @@
 			function isNode(node) {
 				return typeof node === "object";
 			}
-			function match(problem, solution) {
+			function match(problem, solution, type) {
 				let matrix = Array.from(Array(problem.length), () => new Array(solution.length));
 				for (let i = 0; i < problem.length; i++) {
 					for (let j = 0; j < solution.length; j++) {
-						// TO DO: Build an object to qualify for each language how the values are different + this does not work for JS objects - some differences remain
-						if (_.isEqual(problem[i], solution[j])) {
-							matrix[i][j] = 1;
+						// TO DO: Use conditional statements with find options to search children elements or characteristics stored in arrays
+						if (type == "html") {
+							// Constraint rules for HTML code
+							let eval = { match: "", count: 0, tagName: 0, type: 0 };
+							if (_.isEqual(problem[i].tagName, solution[j].tagName)) {
+								eval.count++;
+								eval.tagName = 1;
+							}
+							if (_.isEqual(problem[i].type, solution[j].type)) {
+								eval.count++;
+								eval.type = 1;
+							}
+							if (eval.count == 2) {
+								eval.match = "match";
+							} else if (eval.count > 0) {
+								eval.match = "partial";
+							} else {
+								eval.match = "mismatch";
+							}
+							matrix[i][j] = eval;
+						} else if (type == "css") {
+							// Constraint rules for CSS code
+							let eval = { match: "", count: 0, selector: 0, directive: 0, value: 0 };
+							if (_.isEqual(problem[i].selector, solution[j].selector)) {
+								eval.count++;
+								eval.selector = 1;
+							}
+							if (_.isEqual(problem[i].directive, solution[j].directive)) {
+								eval.count++;
+								eval.directive = 1;
+							}
+							if (_.isEqual(problem[i].value, solution[j].value)) {
+								eval.count++;
+								eval.value = 1;
+							}
+							if (eval.count == 3) {
+								eval.match = "match";
+							} else if (eval.count > 0) {
+								eval.match = "partial";
+							} else {
+								eval.match = "mismatch";
+							}
+							matrix[i][j] = eval;
+						} else if (type == "js") {
+							// Constraint rules for JS code
+							let eval = { match: "", count: 0, type: 0 };
+							if (_.isEqual(problem[i].type, solution[j].type)) {
+								eval.count++;
+								eval.type = 1;
+							}
+							if (eval.count == 1) {
+								eval.match = "match";
+							} else if (eval.count > 0) {
+								eval.match = "partial";
+							} else {
+								eval.match = "mismatch";
+							}
+							matrix[i][j] = eval;
 						} else {
-							matrix[i][j] = 0;
+							// Legacy feature
+							if (_.isEqual(problem[i], solution[j])) {
+								matrix[i][j] = 1;
+							} else {
+								matrix[i][j] = 0;
+							}
 						}
 					}
 				}
